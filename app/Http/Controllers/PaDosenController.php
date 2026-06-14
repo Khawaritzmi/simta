@@ -55,7 +55,7 @@ class PaDosenController extends Controller
             'updated_at' => now(),
         ]);
 
-        return redirect()->route('pa.dosen.dashboard')->with('status', 'Catatan bimbingan PA berhasil disimpan.');
+        return redirect()->route('pa.dashboard')->with('status', 'Catatan bimbingan PA berhasil disimpan.');
     }
 
     private function lecturer(): object

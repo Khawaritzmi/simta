@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -10,6 +11,11 @@ use Illuminate\View\View;
 
 class AuthController extends Controller
 {
+    public function portal(): RedirectResponse
+    {
+        return redirect()->route($this->homeRouteForRole(Auth::user()?->role));
+    }
+
     public function showLogin(Request $request): View
     {
         return view('auth.login', [
@@ -66,21 +72,17 @@ class AuthController extends Controller
         ]);
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            if (Auth::user()->role !== 'dosen') {
+            if (! in_array(Auth::user()->role, ['dosen', 'examiner'], true)) {
                 Auth::logout();
 
                 return back()
-                    ->withErrors(['email' => 'Akun ini bukan akun dosen.'])
+                    ->withErrors(['email' => 'Akun ini bukan akun dosen atau penguji.'])
                     ->onlyInput('email');
             }
 
             $request->session()->regenerate();
 
-            if ($request->filled('next') && $request->input('next') === 'pa.dosen.dashboard') {
-                return redirect()->route('pa.dosen.dashboard');
-            }
-
-            return redirect()->intended(route('dashboard'));
+            return redirect()->intended(route($this->homeRouteForRole(Auth::user()->role)));
         }
 
         return back()
@@ -96,6 +98,39 @@ class AuthController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('landing')->with('status', 'Anda berhasil logout.');
+    }
+
+    public function showPasswordForm(): View
+    {
+        return view('auth.change-password', [
+            'title' => 'Ubah Password',
+            'roleLabel' => match (Auth::user()?->role) {
+                'admin' => 'Admin',
+                'mahasiswa' => 'Mahasiswa',
+                'dosen' => 'Dosen',
+                default => 'User',
+            },
+        ]);
+    }
+
+    public function updatePassword(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'current_password' => ['required'],
+            'password' => ['required', 'confirmed', 'min:8'],
+        ]);
+
+        if (! Hash::check($validated['current_password'], $request->user()->password)) {
+            return back()->withErrors(['current_password' => 'Password lama tidak sesuai.']);
+        }
+
+        $request->user()->forceFill([
+            'password' => Hash::make($validated['password']),
+        ])->save();
+
+        $request->session()->regenerate();
+
+        return back()->with('status', 'Password berhasil diperbarui.');
     }
 
     public function register(Request $request)
@@ -150,17 +185,17 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('dashboard')->with('status', 'Registrasi berhasil. Selamat datang.');
+        return redirect()->route($this->homeRouteForRole('dosen'))->with('status', 'Registrasi berhasil. Selamat datang.');
     }
 
     public function studentLogin(Request $request)
     {
-        return $this->loginForRole($request, 'mahasiswa', route('mahasiswa.dashboard'), 'Akun ini bukan akun mahasiswa.', ['pa.mahasiswa.dashboard']);
+        return $this->loginForRole($request, 'mahasiswa', route($this->homeRouteForRole('mahasiswa')), 'Akun ini bukan akun mahasiswa.');
     }
 
     public function adminLogin(Request $request)
     {
-        return $this->loginForRole($request, 'admin', route('admin.dashboard'), 'Akun ini bukan akun admin.');
+        return $this->loginForRole($request, 'admin', route($this->homeRouteForRole('admin')), 'Akun ini bukan akun admin.');
     }
 
     public function studentRegister(Request $request)
@@ -200,7 +235,7 @@ class AuthController extends Controller
         Auth::login($user);
         $request->session()->regenerate();
 
-        return redirect()->route('mahasiswa.dashboard')->with('status', 'Registrasi mahasiswa berhasil.');
+        return redirect()->route($this->homeRouteForRole('mahasiswa'))->with('status', 'Registrasi mahasiswa berhasil.');
     }
 
     private function loginForRole(Request $request, string $role, string $redirectTo, string $roleError, array $allowedNextRoutes = [])
@@ -242,5 +277,15 @@ class AuthController extends Controller
         }
 
         return null;
+    }
+
+    private function homeRouteForRole(?string $role): string
+    {
+        return match ($role) {
+            'admin' => 'admin.profile',
+            'mahasiswa' => 'mahasiswa.profile',
+            'examiner' => 'profile',
+            default => 'profile',
+        };
     }
 }

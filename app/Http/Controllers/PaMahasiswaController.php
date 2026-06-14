@@ -58,7 +58,7 @@ class PaMahasiswaController extends Controller
             'updated_at' => now(),
         ]);
 
-        return redirect()->route('pa.mahasiswa.dashboard')->with('status', 'Pengajuan konsultasi PA berhasil dikirim.');
+        return redirect()->route('mahasiswa.pa.dashboard')->with('status', 'Pengajuan konsultasi PA berhasil dikirim.');
     }
 
     private function student(): object

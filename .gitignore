@@ -3,17 +3,23 @@
 Thumbs.db
 .idea/
 .vscode/
+.fleet/
 .zed/
 .nova/
 .cursor/
 .codex/
+.history/
 *.swp
 *.swo
 
 # Environment and secrets
 .env
+/.env
 .env.*
 !.env.example
+/.env.local
+/.env.backup
+/.env.production
 auth.json
 .npmrc
 *.key
@@ -24,16 +30,22 @@ auth.json
 
 # Dependencies
 /vendor/
+/vendor
 /node_modules/
+/node_modules
 
 # Laravel runtime, cache, and logs
 *.log
+/storage/logs/*.log
 .phpunit.result.cache
 .phpunit.cache/
+/.phpunit.cache/
 /bootstrap/cache/*.php
 !/bootstrap/cache/.gitignore
 /storage/*.key
 /storage/pail/
+/storage/debugbar/
+/storage/clockwork/
 /storage/app/*
 !/storage/app/.gitignore
 !/storage/app/private/
@@ -65,11 +77,16 @@ auth.json
 /public/storage
 /dist/
 /build/
+/coverage/
+/.vite/
+.eslintcache
 
 # Local databases and private source data
 /database/*.sqlite
 /database/*.sqlite-*
+/database/*.sqlite-journal
 /database/*.db
+/database/*.dump
 /database/excel/
 /database/exports/
 /database/imports/

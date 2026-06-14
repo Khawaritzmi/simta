@@ -28,7 +28,7 @@
                     <td>{{ $guidance->title }}</td>
                     <td>
                         <div class="actions">
-                            <div class="progress"><span style="width:{{ $guidance->progress }}%"></span></div>
+                            <progress class="progress" max="100" value="{{ $guidance->progress }}">{{ $guidance->progress }}%</progress>
                             <strong>{{ $guidance->progress }}%</strong>
                         </div>
                     </td>

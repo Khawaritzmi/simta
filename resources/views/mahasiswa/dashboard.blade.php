@@ -17,7 +17,13 @@
                 <tr>
                     <td><strong>{{ $guidance->title }}</strong><br><span class="muted">{{ $guidance->last_note }}</span></td>
                     <td>{{ $guidance->lecturer_name }}<br><span class="muted">{{ $guidance->lecturer_email }}</span></td>
-                    <td><div class="actions"><div class="progress"><span style="width:{{ $guidance->progress }}%"></span></div><strong>{{ $guidance->progress }}%</strong></div></td>
+                    <td>
+                        <div class="actions">
+                            <progress class="progress" max="100" value="{{ $guidance->ta_progress['percent'] }}">{{ $guidance->ta_progress['fraction'] }}</progress>
+                            <strong>{{ $guidance->ta_progress['fraction'] }}</strong>
+                        </div>
+                        <span class="muted">{{ $guidance->ta_progress['percent'] }}% dari target bimbingan</span>
+                    </td>
                     <td><span class="badge warning">{{ $guidance->seminar_status }}</span></td>
                 </tr>
             @empty

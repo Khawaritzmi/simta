@@ -1,3 +1,9 @@
+/*
+ * CSS utama aplikasi.
+ * Dipakai untuk memuat Tailwind dan sumber class global yang dapat digunakan di seluruh Blade.
+ * CSS spesifik halaman dipisahkan ke file lain seperti landing.css, dosen-layout.css,
+ * mahasiswa-layout.css, admin-dashboard.css, dan file modul lain agar style tidak saling bentrok.
+ */
 @import 'tailwindcss';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';

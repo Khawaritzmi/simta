@@ -1,5 +1,6 @@
 {
     "$schema": "https://www.schemastore.org/package.json",
+    "name": "sistem-informasi-bimbingan",
     "private": true,
     "type": "module",
     "scripts": {

@@ -1,82 +1,175 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# SIMTA x DELTA-MAT
 
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="assets/fmipa.png" alt="FMIPA" height="72">
+  &nbsp;&nbsp;&nbsp;
+  <img src="assets/jurmat.png" alt="Jurusan Matematika" height="72">
 </p>
 
-## Docker Development
+<p align="center">
+  <strong>Sistem Informasi Manajemen Tugas Akhir dan Database Referensi DELTA-MAT</strong><br>
+  Aplikasi web akademik untuk mengelola bimbingan TA, bimbingan PA, seminar/ujian, repository, dan pembaruan data kolektif.
+</p>
 
-Build and start the Laravel and Vite development containers:
+<p align="center">
+  <img alt="Laravel" src="https://img.shields.io/badge/Laravel-13.x-FF2D20?style=flat-square&logo=laravel&logoColor=white">
+  <img alt="PHP" src="https://img.shields.io/badge/PHP-8.3+-777BB4?style=flat-square&logo=php&logoColor=white">
+  <img alt="Vite" src="https://img.shields.io/badge/Vite-8.x-646CFF?style=flat-square&logo=vite&logoColor=white">
+  <img alt="Status" src="https://img.shields.io/badge/status-active-16855B?style=flat-square">
+</p>
+
+## Ringkasan
+
+SIMTA x DELTA-MAT adalah aplikasi berbasis Laravel untuk membantu alur akademik tugas akhir. Mahasiswa, dosen, dan admin masuk melalui portal sesuai peran, lalu mengakses fitur bimbingan, jadwal seminar/ujian, dokumen, repository, laporan, dan pengelolaan database.
+
+README ini tidak memuat kredensial, token, konfigurasi `.env`, atau data sensitif. Gunakan `.env.example` sebagai template konfigurasi lokal.
+
+## Fitur Dengan Logo
+
+<table>
+  <tr>
+    <td width="120" align="center">
+      <img src="assets/TA_logo.png" alt="Bimbingan TA" width="88">
+    </td>
+    <td>
+      <strong>Bimbingan TA</strong><br>
+      Pengajuan pembimbing/penguji, approval admin dan dosen, monitoring progress, catatan bimbingan, upload dokumen PDF, seminar/ujian, dan penilaian.
+    </td>
+  </tr>
+  <tr>
+    <td width="120" align="center">
+      <img src="assets/PA_logo.png" alt="Bimbingan PA" width="88">
+    </td>
+    <td>
+      <strong>Bimbingan PA</strong><br>
+      Penetapan dosen PA, konsultasi akademik, catatan IPK/SKS, status konsultasi, rekomendasi dosen, dan progress bimbingan PA.
+    </td>
+  </tr>
+  <tr>
+    <td width="120" align="center">
+      <img src="assets/DELTAMAT_logo.png" alt="DELTA-MAT" width="88">
+    </td>
+    <td>
+      <strong>DELTA-MAT</strong><br>
+      Database judul tugas akhir, pencarian referensi, tautan dokumen, pengecekan kemiripan judul, dan pengelolaan data judul oleh admin.
+    </td>
+  </tr>
+</table>
+
+## Modul Aplikasi
+
+- **Portal per peran**: admin, dosen, dan mahasiswa diarahkan ke halaman masing-masing setelah login.
+- **Profil pengguna**: data akun, data akademik, foto profil, dan ubah password.
+- **Seminar/Ujian**: admin menjadwalkan seminar/ujian; dosen melihat dokumen mahasiswa dan memberi penilaian melalui modal responsif.
+- **Repository TA**: daftar dokumen tugas akhir yang dapat dipantau dosen dan mahasiswa sesuai hak akses.
+- **Export CSV**: admin dan dosen dapat mengunduh laporan progress bimbingan TA/PA.
+- **Update Database Kolektif**: admin dapat bulk insert/update data DELTA-MAT, mahasiswa, dan dosen dari CSV/XLSX dengan history perubahan.
+
+## Teknologi
+
+| Bagian | Stack |
+| --- | --- |
+| Backend | Laravel, PHP, Eloquent/Query Builder |
+| Frontend | Blade, CSS modular, Vite |
+| Database | MySQL untuk deployment, SQLite opsional untuk development |
+| File storage | Laravel public disk dan storage symlink |
+| Testing | PHPUnit melalui `php artisan test` |
+
+## Struktur Penting
+
+```text
+app/Http/Controllers     Controller utama aplikasi
+app/Models               Model Eloquent
+database/migrations      Skema database
+database/seeders         Seeder data awal
+resources/views          Blade template
+resources/css            CSS per halaman/modul
+routes/web.php           Route web aplikasi
+assets                   Logo fitur dan aset visual README/landing page
+```
+
+## Instalasi Lokal
+
+```bash
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
+```
+
+Atur koneksi database pada `.env` lokal, lalu jalankan:
+
+```bash
+php artisan migrate --seed
+php artisan storage:link
+npm run build
+php artisan serve
+```
+
+Untuk mode development frontend:
+
+```bash
+npm run dev
+```
+
+## Docker
+
+Jika memakai konfigurasi Docker project:
 
 ```bash
 docker compose up --build
 ```
 
-The application will be available at:
-
-- Laravel: http://localhost:8000
-- Vite: http://localhost:5173
-
-The setup uses SQLite at `database/database.sqlite`, installs Composer and npm dependencies inside the containers, runs pending migrations, and then starts `php artisan serve`.
-
-Common commands:
+Perintah umum di container:
 
 ```bash
-docker compose exec app php artisan migrate
+docker compose exec app php artisan migrate --seed
 docker compose exec app php artisan test
-docker compose exec app composer install
 docker compose run --rm vite npm run build
 ```
 
-## About Laravel
+## Update Database Kolektif
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Menu admin: **Update Kolektif**.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Format file:
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- CSV atau XLSX.
+- Baris pertama wajib berupa header kolom.
+- File `.xls` lama perlu disimpan ulang sebagai `.xlsx` atau `.csv`.
 
-## Learning Laravel
+Mode update:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- **Update data yang lama**: data lama diperbarui jika key unik ditemukan, data baru tetap ditambahkan.
+- **Jangan ganggu data yang lama**: hanya menambah data baru, data lama tidak diubah.
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Key unik:
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+| Target | Key |
+| --- | --- |
+| DELTA-MAT | `nim` + `title` |
+| Mahasiswa | `nim` |
+| Dosen | `nip`, dengan `nidn` sebagai pendukung pencocokan data lama |
 
-## Agentic Development
+Setiap data baru atau perubahan field dicatat di tabel `update_histories` dengan waktu, user admin, target tabel, mode aksi, dan nilai lama/baru.
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Perintah Quality Check
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+php artisan test
+npm run build
+php artisan optimize:clear
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+## Keamanan dan Data Sensitif
 
-## Contributing
+- Jangan commit file `.env`, credential database, token API, backup database, atau file upload privat.
+- Gunakan `.env.example` untuk template konfigurasi.
+- Gunakan `php artisan storage:link` agar file publik dapat diakses melalui mekanisme Laravel.
+- Hindari `php artisan migrate:fresh --seed` pada database yang berisi data penting karena perintah tersebut menghapus tabel sebelum membuat ulang data.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Catatan Pengembangan
 
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- CSS dipisah per halaman/modul agar Blade tidak penuh style inline.
+- Route lama yang sudah diarahkan ulang tetap dipertahankan untuk kompatibilitas.
+- File kandidat tidak terpakai sebaiknya dicek referensinya terlebih dahulu sebelum dihapus.

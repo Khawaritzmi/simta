@@ -27,7 +27,7 @@
                     <input id="url" name="url" placeholder="https://...">
                 </div>
             </div>
-            <div style="margin-top:18px">
+            <div class="form-actions">
                 <button class="button" type="submit">Tambah</button>
             </div>
         </form>

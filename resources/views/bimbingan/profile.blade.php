@@ -2,13 +2,26 @@
 
 @section('content')
     <div class="grid-2">
-        <section class="panel" style="padding:0">
+        <section class="panel profile-panel">
             <div class="profile-photo">
-                <div class="avatar">{{ mb_substr($lecturer->name, 0, 1) }}</div>
+                @if ($profilePhotoUrl)
+                    <img class="avatar photo-avatar" src="{{ $profilePhotoUrl }}" alt="Foto profil {{ $lecturer->name }}">
+                @else
+                    <div class="avatar">{{ mb_substr($lecturer->name, 0, 1) }}</div>
+                @endif
             </div>
-            <div class="photo-action">
-                <button class="button secondary" type="button">Ganti Foto</button>
-            </div>
+            <form class="photo-action" method="post" action="{{ route('profile.update') }}" enctype="multipart/form-data">
+                @csrf
+                <input name="employment_status" type="hidden" value="{{ $lecturer->employment_status }}">
+                <input name="expertise" type="hidden" value="{{ $lecturer->expertise }}">
+                <input name="email" type="hidden" value="{{ $lecturer->email }}">
+                <input name="phone" type="hidden" value="{{ $lecturer->phone }}">
+                <input name="address" type="hidden" value="{{ $lecturer->address }}">
+                <label class="photo-upload">Ganti Foto
+                    <input name="photo" type="file" accept="image/png,image/jpeg" required>
+                </label>
+                <button class="button secondary" type="submit">Upload</button>
+            </form>
         </section>
 
         <section class="panel">
@@ -36,7 +49,7 @@
 
     <section class="panel">
         <h3>Edit Profil</h3>
-        <form method="post" action="{{ route('profile.update') }}">
+        <form method="post" action="{{ route('profile.update') }}" enctype="multipart/form-data">
             @csrf
             <div class="form-grid">
                 <div>
@@ -56,11 +69,11 @@
                     <input id="phone" name="phone" value="{{ old('phone', $lecturer->phone) }}">
                 </div>
             </div>
-            <div style="margin-top:18px">
+            <div class="field-block">
                 <label for="address">Alamat</label>
                 <textarea id="address" name="address">{{ old('address', $lecturer->address) }}</textarea>
             </div>
-            <div style="margin-top:18px">
+            <div class="form-actions">
                 <button class="button" type="submit">Edit</button>
             </div>
         </form>

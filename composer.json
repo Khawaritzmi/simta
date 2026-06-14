@@ -1,9 +1,9 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "unhas/sistem-informasi-bimbingan",
+    "name": "unm/sistem-informasi-bimbingan",
     "type": "project",
-    "description": "Sistem Informasi Bimbingan web application built with Laravel.",
-    "keywords": ["laravel", "bimbingan", "unhas"],
+    "description": "SIMTA and DELTA-MAT academic supervision application built with Laravel.",
+    "keywords": ["laravel", "simta", "delta-mat", "bimbingan", "tugas-akhir", "unm"],
     "license": "MIT",
     "require": {
         "php": "^8.3",

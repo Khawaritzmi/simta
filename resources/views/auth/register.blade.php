@@ -4,74 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Register | Sistem Informasi Manajemen Tugas Akhir</title>
-    <style>
-        :root {
-            --blue: #1f91e8;
-            --blue-dark: #176fb2;
-            --ink: #252b36;
-            --muted: #747b86;
-            --line: #dfe7ef;
-            --page: #f5f7fc;
-            --panel: #ffffff;
-        }
-        * { box-sizing: border-box; }
-        body {
-            margin: 0;
-            min-height: 100vh;
-            background: var(--page);
-            color: var(--ink);
-            font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
-        }
-        .page { width: min(1080px, calc(100vw - 32px)); margin: 32px auto; }
-        .register-shell {
-            display: grid;
-            grid-template-columns: 320px 1fr;
-            background: var(--panel);
-            border: 1px solid var(--line);
-            min-height: 680px;
-        }
-        .brand-panel { padding: 42px; background: #eef6ff; display: flex; flex-direction: column; justify-content: space-between; }
-        .brand-panel strong { display: block; font-size: 28px; letter-spacing: .08em; margin-bottom: 30px; }
-        .brand-logo { width: 72px; height: 72px; object-fit: contain; margin-bottom: 28px; }
-        .brand-panel h1 { margin: 0 0 18px; font-size: 36px; line-height: 1.12; }
-        .brand-panel p { margin: 0; color: var(--muted); line-height: 1.65; }
-        .form-panel { padding: 42px; }
-        h2 { margin: 0 0 24px; font-size: 30px; }
-        h3 { margin: 26px 0 16px; font-size: 18px; }
-        .grid { display: grid; grid-template-columns: repeat(2, minmax(220px, 1fr)); gap: 18px; }
-        label { display: block; font-weight: 800; margin-bottom: 8px; }
-        input, select, textarea {
-            width: 100%;
-            border: 1px solid var(--line);
-            border-radius: 5px;
-            padding: 13px 14px;
-            font: inherit;
-            color: var(--ink);
-            background: white;
-        }
-        textarea { min-height: 96px; resize: vertical; }
-        .full { grid-column: 1 / -1; }
-        button {
-            border: 0;
-            border-radius: 5px;
-            padding: 14px 22px;
-            background: var(--blue);
-            color: white;
-            font: inherit;
-            font-weight: 800;
-            cursor: pointer;
-            margin-top: 22px;
-        }
-        button:hover { background: var(--blue-dark); }
-        .errors { background: #fdecec; color: #842029; border: 1px solid #f5c2c7; padding: 13px 14px; margin-bottom: 18px; border-radius: 5px; }
-        .switch { margin-top: 18px; color: var(--muted); }
-        .switch a { color: var(--blue); font-weight: 800; text-decoration: none; }
-        @media (max-width: 860px) {
-            .register-shell, .grid { grid-template-columns: 1fr; }
-            .brand-panel, .form-panel { padding: 28px; }
-            .full { grid-column: auto; }
-        }
-    </style>
+    @vite(['resources/css/auth-register.css', 'resources/js/app.js'])
 </head>
 <body>
 <main class="page">

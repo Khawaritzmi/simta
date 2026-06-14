@@ -49,6 +49,60 @@ class DatabaseSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
+        DB::table('lecturers')->insert([
+            [
+                'user_id' => null,
+                'nip' => '197602012005011001',
+                'nidn' => '0001027601',
+                'certificate_number' => null,
+                'employment_status' => 'Dosen Tetap PNS',
+                'expertise' => 'Statistika',
+                'name' => 'Dr. Nurul Fadhilah, M.Si.',
+                'gender' => 'Perempuan',
+                'birth_place' => 'Makassar',
+                'birth_date' => '1976-02-01',
+                'email' => 'nurul.fadhilah@unm.test',
+                'phone' => '081234567891',
+                'address' => 'Universitas Negeri Makassar',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'user_id' => null,
+                'nip' => '198004122008121002',
+                'nidn' => '0012048002',
+                'certificate_number' => null,
+                'employment_status' => 'Dosen Tetap PNS',
+                'expertise' => 'Aljabar',
+                'name' => 'Dr. Andi Saputra, M.Pd.',
+                'gender' => 'Laki-Laki',
+                'birth_place' => 'Parepare',
+                'birth_date' => '1980-04-12',
+                'email' => 'andi.saputra@unm.test',
+                'phone' => '081234567892',
+                'address' => 'Universitas Negeri Makassar',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'user_id' => null,
+                'nip' => '198709232012122003',
+                'nidn' => '0023098703',
+                'certificate_number' => null,
+                'employment_status' => 'Dosen Tetap PNS',
+                'expertise' => 'Analisis Numerik',
+                'name' => 'Dr. Sri Wahyuni, M.Si.',
+                'gender' => 'Perempuan',
+                'birth_place' => 'Bone',
+                'birth_date' => '1987-09-23',
+                'email' => 'sri.wahyuni@unm.test',
+                'phone' => '081234567893',
+                'address' => 'Universitas Negeri Makassar',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
         DB::table('users')->updateOrInsert(
             ['email' => 'mahasiswa@bimbingan.test'],
             [
@@ -158,6 +212,53 @@ class DatabaseSeeder extends Seeder
                 'type' => 'Persetujuan Revisi Judul',
                 'description' => 'Perubahan judul setelah validasi data.',
                 'status' => 'pending',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+        ]);
+
+        DB::table('thesis_guidance_requests')->insert([
+            [
+                'student_id' => 1,
+                'supervisor_1_id' => 1,
+                'supervisor_2_id' => 2,
+                'examiner_1_id' => 3,
+                'examiner_2_id' => 4,
+                'title' => 'Klasifikasi Citra Daun Menggunakan Convolutional Neural Network',
+                'admin_status' => 'approved',
+                'supervisor_1_status' => 'approved',
+                'supervisor_2_status' => 'approved',
+                'examiner_1_status' => 'approved',
+                'examiner_2_status' => 'approved',
+                'admin_decided_at' => now(),
+                'supervisor_1_decided_at' => now(),
+                'supervisor_2_decided_at' => now(),
+                'examiner_1_decided_at' => now(),
+                'examiner_2_decided_at' => now(),
+                'status' => 'approved',
+                'activated_at' => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ],
+            [
+                'student_id' => 2,
+                'supervisor_1_id' => 1,
+                'supervisor_2_id' => 2,
+                'examiner_1_id' => 3,
+                'examiner_2_id' => 4,
+                'title' => 'Prediksi Kelulusan Mahasiswa Berbasis Random Forest',
+                'admin_status' => 'approved',
+                'supervisor_1_status' => 'approved',
+                'supervisor_2_status' => 'approved',
+                'examiner_1_status' => 'approved',
+                'examiner_2_status' => 'approved',
+                'admin_decided_at' => now(),
+                'supervisor_1_decided_at' => now(),
+                'supervisor_2_decided_at' => now(),
+                'examiner_1_decided_at' => now(),
+                'examiner_2_decided_at' => now(),
+                'status' => 'approved',
+                'activated_at' => now(),
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -330,6 +431,33 @@ class DatabaseSeeder extends Seeder
                 'updated_at' => now(),
             ],
         ]);
+
+        DB::table('settings')->updateOrInsert(
+            ['key' => 'guidance_target_default'],
+            ['value' => '16', 'created_at' => now(), 'updated_at' => now()],
+        );
+
+        foreach (range(1, 8) as $index) {
+            DB::table('guidances')->insert([
+                'student_id' => 1,
+                'type' => 'TA',
+                'completed_at' => now()->subDays(20 - $index),
+                'notes' => "Bimbingan TA ke-{$index}",
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        foreach (range(1, 5) as $index) {
+            DB::table('guidances')->insert([
+                'student_id' => 1,
+                'type' => 'PA',
+                'completed_at' => now()->subDays(30 - $index),
+                'notes' => "Bimbingan PA ke-{$index}",
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
         app(DeltaMatExcelImporter::class)->import();
     }
