@@ -1,0 +1,90 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.zed/
+.nova/
+.cursor/
+.codex/
+*.swp
+*.swo
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+auth.json
+.npmrc
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+
+# Dependencies
+/vendor/
+/node_modules/
+
+# Laravel runtime, cache, and logs
+*.log
+.phpunit.result.cache
+.phpunit.cache/
+/bootstrap/cache/*.php
+!/bootstrap/cache/.gitignore
+/storage/*.key
+/storage/pail/
+/storage/app/*
+!/storage/app/.gitignore
+!/storage/app/private/
+!/storage/app/public/
+/storage/app/private/*
+!/storage/app/private/.gitignore
+/storage/app/public/*
+!/storage/app/public/.gitignore
+/storage/framework/*
+!/storage/framework/.gitignore
+!/storage/framework/cache/
+!/storage/framework/sessions/
+!/storage/framework/testing/
+!/storage/framework/views/
+/storage/framework/cache/*
+!/storage/framework/cache/.gitignore
+/storage/framework/sessions/*
+!/storage/framework/sessions/.gitignore
+/storage/framework/testing/*
+!/storage/framework/testing/.gitignore
+/storage/framework/views/*
+!/storage/framework/views/.gitignore
+/storage/logs/*
+!/storage/logs/.gitignore
+
+# Build outputs
+/public/build/
+/public/hot
+/public/storage
+/dist/
+/build/
+
+# Local databases and private source data
+/database/*.sqlite
+/database/*.sqlite-*
+/database/*.db
+/database/excel/
+/database/exports/
+/database/imports/
+/database/backups/
+/database/seeders/data/*.json
+
+# Generated documents
+/administrasi/*.pdf
+
+# Local tooling
+_ide_helper.php
+_ide_helper_models.php
+.phpactor.json
+Homestead.json
+Homestead.yaml
+
+# Docker/local overrides
+docker-compose.override.yml

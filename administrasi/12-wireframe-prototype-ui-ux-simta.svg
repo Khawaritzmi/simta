@@ -1,0 +1,181 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1120" viewBox="0 0 1600 1120" role="img" aria-labelledby="title desc">
+  <title id="title">Wireframe dan Prototype UI/UX SIMTA</title>
+  <desc id="desc">Wireframe layar utama SIMTA: landing, dashboard dosen, dashboard mahasiswa, admin, DELTA-MAT, dan detail dokumen.</desc>
+
+  <defs>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#252b36" flood-opacity="0.12"/>
+    </filter>
+    <style>
+      .page { fill: #f5f7fc; }
+      .title { fill: #252b36; font: 800 34px Inter, Arial, sans-serif; letter-spacing: 1px; }
+      .subtitle { fill: #68707d; font: 500 17px Inter, Arial, sans-serif; }
+      .screen { fill: #ffffff; stroke: #dfe7ef; stroke-width: 1.5; rx: 16; filter: url(#shadow); }
+      .screen-title { fill: #252b36; font: 800 18px Inter, Arial, sans-serif; }
+      .label { fill: #596273; font: 700 12px Inter, Arial, sans-serif; }
+      .tiny { fill: #68707d; font: 600 10px Inter, Arial, sans-serif; }
+      .bar { fill: #eef2f7; rx: 6; }
+      .line { stroke: #cbd5e1; stroke-width: 2; stroke-linecap: round; }
+      .blue { fill: #1f91e8; }
+      .green { fill: #16855b; }
+      .orange { fill: #c56a14; }
+      .red { fill: #ef4b4b; }
+      .soft-blue { fill: #eef6ff; stroke: #1f91e8; }
+      .soft-green { fill: #ecfdf5; stroke: #16855b; }
+      .soft-orange { fill: #fff7ed; stroke: #c56a14; }
+      .soft-red { fill: #fff1f2; stroke: #ef4b4b; }
+      .panel { fill: #f8fafc; stroke: #dfe7ef; rx: 10; }
+      .white { fill: #ffffff; }
+      .text-white { fill: #ffffff; font: 800 12px Inter, Arial, sans-serif; }
+      .text-dark { fill: #252b36; font: 800 12px Inter, Arial, sans-serif; }
+    </style>
+  </defs>
+
+  <rect class="page" width="1600" height="1120"/>
+  <text class="title" x="800" y="52" text-anchor="middle">WIREFRAME DAN PROTOTYPE UI/UX SIMTA</text>
+  <text class="subtitle" x="800" y="82" text-anchor="middle">Rancangan visual berdasarkan struktur halaman yang sudah ada pada proyek</text>
+
+  <!-- Landing -->
+  <rect class="screen" x="52" y="122" width="460" height="270"/>
+  <text class="screen-title" x="82" y="158">1. Landing SIMTA</text>
+  <rect class="bar" x="82" y="178" width="400" height="38"/>
+  <circle cx="104" cy="197" r="12" class="blue"/>
+  <text class="label" x="126" y="201">SIMTA</text>
+  <rect class="blue" x="382" y="187" width="78" height="20" rx="4"/>
+  <text class="text-white" x="421" y="201" text-anchor="middle">Login</text>
+  <text class="screen-title" x="82" y="252">SIMTA</text>
+  <line class="line" x1="82" y1="272" x2="318" y2="272"/>
+  <line class="line" x1="82" y1="292" x2="390" y2="292"/>
+  <rect class="panel" x="82" y="322" width="118" height="42"/>
+  <text class="text-dark" x="141" y="347" text-anchor="middle">Bimbingan TA</text>
+  <rect class="panel" x="218" y="322" width="112" height="42"/>
+  <text class="text-dark" x="274" y="347" text-anchor="middle">Bimbingan PA</text>
+  <rect class="panel" x="348" y="322" width="112" height="42"/>
+  <text class="text-dark" x="404" y="347" text-anchor="middle">DELTA-MAT</text>
+
+  <!-- Dosen -->
+  <rect class="screen" x="570" y="122" width="460" height="270"/>
+  <text class="screen-title" x="600" y="158">2. Dashboard Dosen</text>
+  <rect class="panel" x="600" y="180" width="96" height="182"/>
+  <text class="tiny" x="624" y="208">Home</text>
+  <text class="tiny" x="624" y="234">Profil</text>
+  <text class="tiny" x="624" y="260">Bimbingan TA</text>
+  <text class="tiny" x="624" y="286">Persetujuan</text>
+  <text class="tiny" x="624" y="312">Seminar</text>
+  <text class="tiny" x="624" y="338">Q&amp;A</text>
+  <rect class="bar" x="718" y="180" width="282" height="36"/>
+  <text class="label" x="738" y="203">SISTEM INFORMASI MANAJEMEN TUGAS AKHIR</text>
+  <rect class="soft-blue" x="718" y="238" width="282" height="92" rx="10"/>
+  <text class="label" x="740" y="264">Mahasiswa Bimbingan Aktif</text>
+  <line class="line" x1="740" y1="286" x2="958" y2="286"/>
+  <line class="line" x1="740" y1="306" x2="910" y2="306"/>
+  <rect class="blue" x="870" y="336" width="86" height="22" rx="4"/>
+  <text class="text-white" x="913" y="351" text-anchor="middle">Detail</text>
+
+  <!-- Mahasiswa -->
+  <rect class="screen" x="1088" y="122" width="460" height="270"/>
+  <text class="screen-title" x="1118" y="158">3. Dashboard Mahasiswa</text>
+  <rect class="panel" x="1118" y="180" width="96" height="182"/>
+  <text class="tiny" x="1142" y="208">Home</text>
+  <text class="tiny" x="1142" y="234">Profil</text>
+  <text class="tiny" x="1142" y="260">Bimbingan TA</text>
+  <text class="tiny" x="1142" y="286">Repository</text>
+  <text class="tiny" x="1142" y="312">Q&amp;A</text>
+  <rect class="bar" x="1236" y="180" width="282" height="36"/>
+  <text class="label" x="1256" y="203">SIMTA MAHASISWA</text>
+  <rect class="soft-green" x="1236" y="238" width="132" height="92" rx="10"/>
+  <text class="label" x="1254" y="264">Bimbingan</text>
+  <line class="line" x1="1254" y1="286" x2="1336" y2="286"/>
+  <line class="line" x1="1254" y1="306" x2="1320" y2="306"/>
+  <rect class="soft-green" x="1386" y="238" width="132" height="92" rx="10"/>
+  <text class="label" x="1404" y="264">Seminar</text>
+  <line class="line" x1="1404" y1="286" x2="1486" y2="286"/>
+  <line class="line" x1="1404" y1="306" x2="1470" y2="306"/>
+
+  <!-- Admin -->
+  <rect class="screen" x="52" y="450" width="460" height="270"/>
+  <text class="screen-title" x="82" y="486">4. Admin SIMTA</text>
+  <rect class="bar" x="82" y="506" width="400" height="36"/>
+  <text class="label" x="104" y="529">Dashboard Admin</text>
+  <rect class="soft-orange" x="82" y="568" width="182" height="106" rx="10"/>
+  <text class="label" x="106" y="596">Kelola Bimbingan PA</text>
+  <line class="line" x1="106" y1="620" x2="232" y2="620"/>
+  <line class="line" x1="106" y1="642" x2="218" y2="642"/>
+  <rect class="soft-orange" x="300" y="568" width="182" height="106" rx="10"/>
+  <text class="label" x="324" y="596">Kelola DELTA-MAT</text>
+  <line class="line" x1="324" y1="620" x2="450" y2="620"/>
+  <line class="line" x1="324" y1="642" x2="436" y2="642"/>
+
+  <!-- DELTA-MAT -->
+  <rect class="screen" x="570" y="450" width="460" height="270"/>
+  <text class="screen-title" x="600" y="486">5. DELTA-MAT</text>
+  <rect class="bar" x="600" y="506" width="400" height="34"/>
+  <text class="label" x="716" y="528">Masukkan judul tugas akhir</text>
+  <rect class="blue" x="938" y="506" width="62" height="34" rx="6"/>
+  <text class="text-white" x="969" y="528" text-anchor="middle">Cari</text>
+  <rect class="soft-orange" x="600" y="566" width="400" height="62" rx="10"/>
+  <text class="label" x="620" y="592">Analisis Kemiripan Judul</text>
+  <rect class="green" x="620" y="606" width="110" height="10" rx="5"/>
+  <rect class="orange" x="730" y="606" width="150" height="10"/>
+  <rect class="red" x="880" y="606" width="100" height="10" rx="5"/>
+  <rect class="panel" x="600" y="652" width="400" height="44"/>
+  <text class="label" x="620" y="679">Judul rekomendasi + skor + tombol detail</text>
+
+  <!-- Detail PDF -->
+  <rect class="screen" x="1088" y="450" width="460" height="270"/>
+  <text class="screen-title" x="1118" y="486">6. Detail DELTA-MAT dan PDF</text>
+  <rect class="soft-green" x="1118" y="510" width="164" height="170" rx="10"/>
+  <text class="label" x="1140" y="538">Detail Data</text>
+  <line class="line" x1="1140" y1="562" x2="1246" y2="562"/>
+  <line class="line" x1="1140" y1="586" x2="1260" y2="586"/>
+  <line class="line" x1="1140" y1="610" x2="1238" y2="610"/>
+  <line class="line" x1="1140" y1="634" x2="1262" y2="634"/>
+  <rect class="panel" x="1306" y="510" width="212" height="170"/>
+  <text class="label" x="1368" y="538">Preview PDF</text>
+  <rect class="bar" x="1330" y="560" width="164" height="92"/>
+  <line class="line" x1="1348" y1="586" x2="1478" y2="586"/>
+  <line class="line" x1="1348" y1="612" x2="1458" y2="612"/>
+  <line class="line" x1="1348" y1="638" x2="1482" y2="638"/>
+
+  <!-- PA -->
+  <rect class="screen" x="52" y="778" width="460" height="260"/>
+  <text class="screen-title" x="82" y="814">7. Bimbingan PA</text>
+  <rect class="soft-green" x="82" y="842" width="178" height="132" rx="10"/>
+  <text class="label" x="104" y="870">Mahasiswa PA</text>
+  <line class="line" x1="104" y1="896" x2="230" y2="896"/>
+  <line class="line" x1="104" y1="920" x2="216" y2="920"/>
+  <rect class="green" x="104" y="940" width="114" height="22" rx="4"/>
+  <text class="text-white" x="161" y="955" text-anchor="middle">Ajukan Konsultasi</text>
+  <rect class="soft-blue" x="304" y="842" width="178" height="132" rx="10"/>
+  <text class="label" x="326" y="870">Dosen PA</text>
+  <line class="line" x1="326" y1="896" x2="452" y2="896"/>
+  <line class="line" x1="326" y1="920" x2="438" y2="920"/>
+  <rect class="blue" x="326" y="940" width="114" height="22" rx="4"/>
+  <text class="text-white" x="383" y="955" text-anchor="middle">Beri Catatan</text>
+
+  <!-- Data structure -->
+  <rect class="screen" x="570" y="778" width="978" height="260"/>
+  <text class="screen-title" x="600" y="814">8. Struktur Data yang Mendukung UI</text>
+  <rect class="panel" x="600" y="842" width="190" height="134"/>
+  <text class="label" x="626" y="870">users</text>
+  <text class="tiny" x="626" y="894">role: dosen</text>
+  <text class="tiny" x="626" y="916">role: mahasiswa</text>
+  <text class="tiny" x="626" y="938">role: admin</text>
+  <rect class="panel" x="818" y="842" width="190" height="134"/>
+  <text class="label" x="844" y="870">thesis_guidances</text>
+  <text class="tiny" x="844" y="894">judul, status</text>
+  <text class="tiny" x="844" y="916">progress, catatan</text>
+  <text class="tiny" x="844" y="938">seminar_status</text>
+  <rect class="panel" x="1036" y="842" width="190" height="134"/>
+  <text class="label" x="1062" y="870">pa_consultations</text>
+  <text class="tiny" x="1062" y="894">topik</text>
+  <text class="tiny" x="1062" y="916">catatan mahasiswa</text>
+  <text class="tiny" x="1062" y="938">rekomendasi dosen</text>
+  <rect class="panel" x="1254" y="842" width="244" height="134"/>
+  <text class="label" x="1280" y="870">thesis_title_databases</text>
+  <text class="tiny" x="1280" y="894">judul, NIM, mahasiswa</text>
+  <text class="tiny" x="1280" y="916">pembimbing</text>
+  <text class="tiny" x="1280" y="938">document_url</text>
+
+  <text class="subtitle" x="800" y="1080" text-anchor="middle">Prototype ini menjadi acuan visual ringkas, sedangkan detail teknis halaman mengikuti Blade view pada proyek.</text>
+</svg>
