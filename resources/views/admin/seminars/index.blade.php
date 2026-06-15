@@ -25,7 +25,7 @@
 
 <main class="page">
     <h1>Penjadwalan Seminar / Ujian TA</h1>
-    <p class="lead">Admin menjadwalkan seminar proposal, seminar hasil, atau ujian tugas akhir. Jadwal yang tersimpan akan terlihat pada halaman mahasiswa dan dosen pembimbing.</p>
+    <p class="lead">Admin membuat usulan jadwal seminar/ujian. Jadwal resmi baru masuk ke daftar setelah disetujui dua dosen pembimbing dan dua dosen penguji.</p>
 
     @if (session('status'))
         <div class="flash">{{ session('status') }}</div>
@@ -35,16 +35,16 @@
     @endif
 
     <section class="panel">
-        <h2>Pengajuan Jadwal Seminar / Ujian</h2>
+        <h2>Jadwal Menunggu Persetujuan Dosen</h2>
         <table class="table">
             <thead>
             <tr>
                 <th>Mahasiswa</th>
                 <th>Jenis</th>
-                <th>Usulan Jadwal</th>
+                <th>Jadwal dari Admin</th>
                 <th>Status</th>
-                <th>Alasan</th>
-                <th>Aksi Admin</th>
+                <th>Validasi Dosen</th>
+                <th>Catatan / Alasan</th>
             </tr>
             </thead>
             <tbody>
@@ -55,31 +55,32 @@
                     <td>{{ \Carbon\Carbon::parse($request->proposed_at)->format('d M Y H:i') }}<br><span class="muted">{{ $request->room ?: '-' }}</span></td>
                     <td>
                         <span class="badge {{ $request->status === 'approved' ? 'success' : ($request->status === 'rejected' ? 'danger' : '') }}">Final: {{ $request->status }}</span><br>
-                        <span class="badge {{ $request->admin_status === 'approved' ? 'success' : ($request->admin_status === 'rejected' ? 'danger' : '') }}">Admin: {{ $request->admin_status }}</span>
+                        <span class="badge success">Admin: dibuat</span>
                     </td>
-                    <td>{{ $request->admin_note ?: '-' }}</td>
                     <td>
-                        @if ($request->admin_status === 'pending' && $request->status === 'pending')
-                            <div class="row-actions">
-                                <form method="post" action="{{ route('admin.seminar-requests.decide', $request->id) }}">
-                                    @csrf
-                                    <input type="hidden" name="status" value="approved">
-                                    <button class="small" type="submit">Setujui</button>
-                                </form>
-                                <form class="reject-form" method="post" action="{{ route('admin.seminar-requests.decide', $request->id) }}">
-                                    @csrf
-                                    <input type="hidden" name="status" value="rejected">
-                                    <textarea name="note" required placeholder="Alasan penolakan"></textarea>
-                                    <button class="small danger" type="submit">Tolak</button>
-                                </form>
-                            </div>
-                        @else
-                            <span class="muted">Keputusan admin sudah tercatat.</span>
+                        Pembimbing 1: <span class="badge {{ $request->supervisor_1_status === 'approved' ? 'success' : ($request->supervisor_1_status === 'rejected' ? 'danger' : '') }}">{{ $request->supervisor_1_status }}</span><br>
+                        Pembimbing 2: <span class="badge {{ $request->supervisor_2_status === 'approved' ? 'success' : ($request->supervisor_2_status === 'rejected' ? 'danger' : '') }}">{{ $request->supervisor_2_status }}</span><br>
+                        Penguji 1: <span class="badge {{ $request->examiner_1_status === 'approved' ? 'success' : ($request->examiner_1_status === 'rejected' ? 'danger' : '') }}">{{ $request->examiner_1_status }}</span><br>
+                        Penguji 2: <span class="badge {{ $request->examiner_2_status === 'approved' ? 'success' : ($request->examiner_2_status === 'rejected' ? 'danger' : '') }}">{{ $request->examiner_2_status }}</span>
+                    </td>
+                    <td>
+                        @foreach ([
+                            'Pembimbing 1' => $request->supervisor_1_note,
+                            'Pembimbing 2' => $request->supervisor_2_note,
+                            'Penguji 1' => $request->examiner_1_note,
+                            'Penguji 2' => $request->examiner_2_note,
+                        ] as $label => $note)
+                            @if ($note)
+                                <strong>{{ $label }}:</strong> {{ $note }}<br>
+                            @endif
+                        @endforeach
+                        @if (! $request->supervisor_1_note && ! $request->supervisor_2_note && ! $request->examiner_1_note && ! $request->examiner_2_note)
+                            <span class="muted">-</span>
                         @endif
                     </td>
                 </tr>
             @empty
-                <tr><td colspan="6">Belum ada pengajuan jadwal seminar/ujian.</td></tr>
+                <tr><td colspan="6">Belum ada jadwal yang menunggu persetujuan dosen.</td></tr>
             @endforelse
             </tbody>
         </table>
@@ -87,73 +88,118 @@
 
     <div class="grid">
         <section class="panel">
-            <h2>{{ $editing ? 'Edit Jadwal' : 'Tambah Jadwal' }}</h2>
-            <form method="post" action="{{ $editing ? route('admin.seminars.update', $editing->id) : route('admin.seminars.store') }}">
-                @csrf
-                @if ($editing)
+            @if ($editing)
+                <h2>Edit Jadwal</h2>
+                <form method="post" action="{{ route('admin.seminars.update', $editing->id) }}">
+                    @csrf
                     @method('PUT')
-                @endif
 
-                <div class="field">
-                    <label for="thesis_guidance_id">Mahasiswa / Bimbingan TA</label>
-                    <select id="thesis_guidance_id" name="thesis_guidance_id" required>
-                        <option value="">Pilih bimbingan TA</option>
-                        @foreach ($guidances as $guidance)
-                            <option value="{{ $guidance->id }}" @selected((int) old('thesis_guidance_id', $editing->thesis_guidance_id ?? '') === $guidance->id)>
-                                {{ $guidance->student_name }} - {{ $guidance->nim }} | {{ $guidance->title }} | Pembimbing: {{ $guidance->lecturer_name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="two">
                     <div class="field">
-                        <label for="type">Jenis Seminar</label>
-                        <select id="type" name="type" required>
-                            @foreach ($types as $type)
-                                <option value="{{ $type }}" @selected(old('type', $editing->type ?? 'Seminar Proposal') === $type)>{{ $type }}</option>
+                        <label for="thesis_guidance_id">Mahasiswa / Bimbingan TA</label>
+                        <select id="thesis_guidance_id" name="thesis_guidance_id" required>
+                            <option value="">Pilih bimbingan TA</option>
+                            @foreach ($guidances as $guidance)
+                                <option value="{{ $guidance->id }}" @selected((int) old('thesis_guidance_id', $editing->thesis_guidance_id ?? '') === $guidance->id)>
+                                    {{ $guidance->student_name }} - {{ $guidance->nim }} | {{ $guidance->title }} | Pembimbing: {{ $guidance->lecturer_name }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
+
+                    <div class="two">
+                        <div class="field">
+                            <label for="type">Jenis Seminar</label>
+                            <select id="type" name="type" required>
+                                @foreach ($types as $type)
+                                    <option value="{{ $type }}" @selected(old('type', $editing->type ?? 'Seminar Proposal') === $type)>{{ $type }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="status">Status</label>
+                            <select id="status" name="status" required>
+                                @foreach ($statuses as $status)
+                                    <option value="{{ $status }}" @selected(old('status', $editing->status ?? 'scheduled') === $status)>{{ ucfirst($status) }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="two">
+                        <div class="field">
+                            <label for="scheduled_at">Tanggal dan Jam</label>
+                            <input id="scheduled_at" name="scheduled_at" type="datetime-local" value="{{ old('scheduled_at', $editing?->scheduled_at ? date('Y-m-d\TH:i', strtotime($editing->scheduled_at)) : '') }}" required>
+                        </div>
+                        <div class="field">
+                            <label for="room">Ruangan</label>
+                            <input id="room" name="room" value="{{ old('room', $editing->room ?? '') }}" placeholder="Ruang Seminar Matematika">
+                        </div>
+                    </div>
+
+                    <div class="two">
+                        <div class="field">
+                            <label for="score">Nilai</label>
+                            <input id="score" name="score" type="number" min="0" max="100" value="{{ old('score', $editing->score ?? '') }}" placeholder="Opsional">
+                        </div>
+                        <div class="field">
+                            <label for="feedback">Catatan</label>
+                            <textarea id="feedback" name="feedback" placeholder="Opsional">{{ old('feedback', $editing->feedback ?? '') }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit">Simpan Perubahan</button>
+                        <a class="button secondary" href="{{ route('admin.seminars') }}">Batal Edit</a>
+                    </div>
+                </form>
+            @else
+                <h2>Buat Jadwal untuk Approval Dosen</h2>
+                <p class="muted">Form ini membuat usulan jadwal. Sistem akan meminta persetujuan pembimbing dan penguji sebelum jadwal resmi diterbitkan.</p>
+                <form method="post" action="{{ route('admin.seminars.store') }}">
+                    @csrf
+
                     <div class="field">
-                        <label for="status">Status</label>
-                        <select id="status" name="status" required>
-                            @foreach ($statuses as $status)
-                                <option value="{{ $status }}" @selected(old('status', $editing->status ?? 'scheduled') === $status)>{{ ucfirst($status) }}</option>
+                        <label for="thesis_guidance_id">Mahasiswa / Bimbingan TA</label>
+                        <select id="thesis_guidance_id" name="thesis_guidance_id" required>
+                            <option value="">Pilih bimbingan TA</option>
+                            @foreach ($guidances as $guidance)
+                                <option value="{{ $guidance->id }}" @selected((int) old('thesis_guidance_id') === $guidance->id)>
+                                    {{ $guidance->student_name }} - {{ $guidance->nim }} | {{ $guidance->title }} | Pembimbing: {{ $guidance->lecturer_name }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
-                </div>
 
-                <div class="two">
-                    <div class="field">
-                        <label for="scheduled_at">Tanggal dan Jam</label>
-                        <input id="scheduled_at" name="scheduled_at" type="datetime-local" value="{{ old('scheduled_at', $editing?->scheduled_at ? date('Y-m-d\TH:i', strtotime($editing->scheduled_at)) : '') }}" required>
+                    <div class="two">
+                        <div class="field">
+                            <label for="type">Jenis Seminar</label>
+                            <select id="type" name="type" required>
+                                @foreach ($types as $type)
+                                    <option value="{{ $type }}" @selected(old('type', 'Seminar Proposal') === $type)>{{ $type }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label for="proposed_at">Tanggal dan Jam</label>
+                            <input id="proposed_at" name="proposed_at" type="datetime-local" value="{{ old('proposed_at') }}" required>
+                        </div>
                     </div>
+
                     <div class="field">
                         <label for="room">Ruangan</label>
-                        <input id="room" name="room" value="{{ old('room', $editing->room ?? '') }}" placeholder="Ruang Seminar Matematika">
+                        <input id="room" name="room" value="{{ old('room') }}" placeholder="Ruang Seminar Matematika">
                     </div>
-                </div>
 
-                <div class="two">
                     <div class="field">
-                        <label for="score">Nilai</label>
-                        <input id="score" name="score" type="number" min="0" max="100" value="{{ old('score', $editing->score ?? '') }}" placeholder="Opsional">
+                        <label for="note">Catatan untuk dosen</label>
+                        <textarea id="note" name="note" placeholder="Opsional">{{ old('note') }}</textarea>
                     </div>
-                    <div class="field">
-                        <label for="feedback">Catatan</label>
-                        <textarea id="feedback" name="feedback" placeholder="Opsional">{{ old('feedback', $editing->feedback ?? '') }}</textarea>
-                    </div>
-                </div>
 
-                <div class="form-actions">
-                    <button type="submit">{{ $editing ? 'Simpan Perubahan' : 'Tambah Jadwal' }}</button>
-                    @if ($editing)
-                        <a class="button secondary" href="{{ route('admin.seminars') }}">Batal Edit</a>
-                    @endif
-                </div>
-            </form>
+                    <div class="form-actions">
+                        <button type="submit">Kirim ke Dosen</button>
+                    </div>
+                </form>
+            @endif
         </section>
 
         <section class="panel">

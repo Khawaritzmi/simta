@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
@@ -190,12 +191,14 @@ class BimbinganController extends Controller
         $lecturer = $this->lecturer();
         $paStudents = $this->advisedStudents($lecturer);
         $paConsultations = $this->paConsultations($lecturer);
+        $paMessages = $this->paMessages($paConsultations->pluck('id')->all());
 
         return view('bimbingan.pa', $this->data($lecturer, [
             'title' => 'Bimbingan PA',
             'activeMenu' => 'pa',
             'paStudents' => $paStudents,
             'paConsultations' => $paConsultations,
+            'paMessages' => $paMessages,
             'paReport' => [
                 'students' => $paStudents->count(),
                 'consultations' => $paConsultations->count(),
@@ -476,7 +479,7 @@ class BimbinganController extends Controller
             ->whereIn('thesis_guidance_id', $guidanceIds)
             ->get()
             ->map(function ($upload) {
-                $upload->url = Storage::disk('public')->url($upload->path);
+                $upload->url = route('thesis-uploads.show', $upload->id);
 
                 return $upload;
             })
@@ -613,5 +616,18 @@ class BimbinganController extends Controller
             ->orderByRaw("case when pa_consultations.status = 'diajukan' then 0 when pa_consultations.status = 'dijadwalkan' then 1 else 2 end")
             ->orderByDesc('pa_consultations.created_at')
             ->get();
+    }
+
+    private function paMessages(array $consultationIds)
+    {
+        if ($consultationIds === [] || ! Schema::hasTable('pa_consultation_messages')) {
+            return collect();
+        }
+
+        return DB::table('pa_consultation_messages')
+            ->whereIn('pa_consultation_id', $consultationIds)
+            ->orderBy('created_at')
+            ->get()
+            ->groupBy('pa_consultation_id');
     }
 }

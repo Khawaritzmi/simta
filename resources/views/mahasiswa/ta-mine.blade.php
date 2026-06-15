@@ -30,35 +30,8 @@
     @foreach ($guidances as $guidance)
         @if (in_array($guidance->status, ['approved', 'active'], true))
             <section class="panel">
-                <h3>Pengajuan Jadwal Seminar / Ujian - {{ $guidance->title }}</h3>
-                <p class="muted">Pengajuan jadwal akan berjalan setelah disetujui admin, dua dosen pembimbing, dan dua dosen penguji. Jika ditolak, alasan akan tampil pada tabel status.</p>
-                <form method="post" action="{{ route('mahasiswa.seminar-requests.store') }}">
-                    @csrf
-                    <input type="hidden" name="thesis_guidance_id" value="{{ $guidance->id }}">
-                    <div class="form-grid">
-                        <div>
-                            <label for="seminar-type-{{ $guidance->id }}">Jenis</label>
-                            <select id="seminar-type-{{ $guidance->id }}" name="type" required>
-                                @foreach ($seminarTypes as $type)
-                                    <option value="{{ $type }}" @selected(old('type') === $type)>{{ $type }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div>
-                            <label for="proposed-at-{{ $guidance->id }}">Usulan Tanggal dan Jam</label>
-                            <input id="proposed-at-{{ $guidance->id }}" name="proposed_at" type="datetime-local" value="{{ old('proposed_at') }}" required>
-                        </div>
-                        <div>
-                            <label for="room-{{ $guidance->id }}">Usulan Ruang</label>
-                            <input id="room-{{ $guidance->id }}" name="room" value="{{ old('room') }}" placeholder="Ruang Seminar Matematika">
-                        </div>
-                        <div>
-                            <label for="student-note-{{ $guidance->id }}">Catatan Mahasiswa</label>
-                            <textarea id="student-note-{{ $guidance->id }}" name="student_note" placeholder="Opsional">{{ old('student_note') }}</textarea>
-                        </div>
-                    </div>
-                    <p><button class="button" type="submit">Kirim Pengajuan Jadwal</button></p>
-                </form>
+                <h3>Monitoring Jadwal Seminar / Ujian - {{ $guidance->title }}</h3>
+                <p class="muted">Jadwal seminar/ujian dibuat oleh admin. Mahasiswa memantau status persetujuan dosen pembimbing dan penguji pada tabel status di bawah.</p>
             </section>
 
             <section class="panel">

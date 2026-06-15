@@ -122,7 +122,7 @@ class SeminarRequestWorkflow
         if ($request->seminar_id) {
             DB::table('seminar_requests')->where('id', $request->id)->update([
                 'status' => 'approved',
-                'scheduled_at' => $request->scheduled_at ?? now(),
+                'scheduled_at' => $request->scheduled_at ?? $request->proposed_at,
                 'updated_at' => now(),
             ]);
 
@@ -144,7 +144,7 @@ class SeminarRequestWorkflow
         DB::table('seminar_requests')->where('id', $request->id)->update([
             'seminar_id' => $seminarId,
             'status' => 'approved',
-            'scheduled_at' => now(),
+            'scheduled_at' => $request->proposed_at,
             'updated_at' => now(),
         ]);
 

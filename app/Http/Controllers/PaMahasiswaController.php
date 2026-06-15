@@ -12,8 +12,6 @@ class PaMahasiswaController extends Controller
 {
     public function dashboard(): View
     {
-        abort_if(Auth::user()->role !== 'mahasiswa', 403);
-
         $student = $this->student();
         $assignment = $this->assignment($student);
 
@@ -38,8 +36,6 @@ class PaMahasiswaController extends Controller
 
     public function storeConsultation(Request $request): RedirectResponse
     {
-        abort_if(Auth::user()->role !== 'mahasiswa', 403);
-
         $student = $this->student();
         $assignment = $this->assignment($student);
 
@@ -49,16 +45,58 @@ class PaMahasiswaController extends Controller
             'requested_at' => ['nullable', 'date'],
         ]);
 
-        DB::table('pa_consultations')->insert($validated + [
-            'pa_assignment_id' => $assignment->id,
-            'student_id' => $student->id,
-            'lecturer_id' => $assignment->lecturer_id,
-            'status' => 'diajukan',
+        DB::transaction(function () use ($assignment, $student, $validated): void {
+            $consultationId = DB::table('pa_consultations')->insertGetId($validated + [
+                'pa_assignment_id' => $assignment->id,
+                'student_id' => $student->id,
+                'lecturer_id' => $assignment->lecturer_id,
+                'status' => 'diajukan',
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            DB::table('pa_consultation_messages')->insert([
+                'pa_consultation_id' => $consultationId,
+                'sender_role' => 'mahasiswa',
+                'sender_user_id' => Auth::id(),
+                'message' => $validated['student_note'],
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        });
+
+        return redirect()->route('mahasiswa.pa.dashboard')->with('status', 'Pengajuan konsultasi PA berhasil dikirim.');
+    }
+
+    public function storeMessage(Request $request, int $consultation): RedirectResponse
+    {
+        $student = $this->student();
+        $record = DB::table('pa_consultations')
+            ->where('id', $consultation)
+            ->where('student_id', $student->id)
+            ->first();
+
+        abort_if(! $record, 404);
+
+        $validated = $request->validate([
+            'message' => ['required', 'max:1200'],
+        ]);
+
+        DB::table('pa_consultation_messages')->insert([
+            'pa_consultation_id' => $record->id,
+            'sender_role' => 'mahasiswa',
+            'sender_user_id' => Auth::id(),
+            'message' => $validated['message'],
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        return redirect()->route('mahasiswa.pa.dashboard')->with('status', 'Pengajuan konsultasi PA berhasil dikirim.');
+        DB::table('pa_consultations')->where('id', $record->id)->update([
+            'status' => $record->status === 'selesai' ? 'diajukan' : $record->status,
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->route('mahasiswa.pa.dashboard')->with('status', 'Pesan PA berhasil dikirim.');
     }
 
     private function student(): object

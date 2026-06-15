@@ -15,6 +15,7 @@ use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\PaDosenController;
 use App\Http\Controllers\PaMahasiswaController;
 use App\Http\Controllers\ProfilePhotoController;
+use App\Http\Controllers\ThesisUploadController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/images/Logo_Universitas_Negeri_Makassar.png', function () {
@@ -60,6 +61,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/portal', [AuthController::class, 'portal'])->name('portal');
     Route::get('/password', [AuthController::class, 'showPasswordForm'])->name('password.edit');
     Route::put('/password', [AuthController::class, 'updatePassword'])->name('password.update');
+    Route::get('/ta/uploads/{upload}', [ThesisUploadController::class, 'show'])
+        ->whereNumber('upload')
+        ->name('thesis-uploads.show');
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     Route::prefix('dosen')->group(function () {
@@ -103,8 +107,10 @@ Route::middleware('auth')->group(function () {
     Route::prefix('pa')->name('pa.')->group(function () {
         Route::get('/dosen', fn () => redirect()->route('pa.dashboard'))->name('dosen.dashboard');
         Route::post('/dosen/konsultasi/{consultation}', [PaDosenController::class, 'updateConsultation'])->name('dosen.consultations.update');
+        Route::post('/dosen/konsultasi/{consultation}/pesan', [PaDosenController::class, 'storeMessage'])->name('dosen.consultations.messages.store');
         Route::get('/mahasiswa', fn () => redirect()->route('mahasiswa.pa.dashboard'))->name('mahasiswa.dashboard');
         Route::post('/mahasiswa/konsultasi', [PaMahasiswaController::class, 'storeConsultation'])->name('mahasiswa.consultations.store');
+        Route::post('/mahasiswa/konsultasi/{consultation}/pesan', [PaMahasiswaController::class, 'storeMessage'])->name('mahasiswa.consultations.messages.store');
     });
 
     Route::get('/admin', [AdminController::class, 'dashboard'])->name('admin.dashboard');

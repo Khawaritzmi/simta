@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -94,6 +95,10 @@ class MahasiswaController extends Controller
             ->where('student_id', $student->id)
             ->orderByDesc('semester')
             ->get();
+        $paConsultations = DB::table('pa_consultations')
+            ->where('student_id', $student->id)
+            ->orderByDesc('created_at')
+            ->get();
 
         return view('mahasiswa.pa', $this->data($student, [
             'title' => 'Bimbingan PA',
@@ -101,10 +106,8 @@ class MahasiswaController extends Controller
             'paAssignment' => $this->paAssignment($student),
             'paRecords' => $records,
             'latestRecord' => $records->first(),
-            'paConsultations' => DB::table('pa_consultations')
-                ->where('student_id', $student->id)
-                ->orderByDesc('created_at')
-                ->get(),
+            'paConsultations' => $paConsultations,
+            'paMessages' => $this->paMessages($paConsultations->pluck('id')->all()),
         ]));
     }
 
@@ -219,70 +222,9 @@ class MahasiswaController extends Controller
     {
         abort_if(Auth::user()->role !== 'mahasiswa', 403);
 
-        $student = $this->student();
-        $validated = $request->validate([
-            'thesis_guidance_id' => ['required', 'exists:thesis_guidances,id'],
-            'type' => ['required', 'in:Seminar Proposal,Seminar Hasil,Ujian TA'],
-            'proposed_at' => ['required', 'date'],
-            'room' => ['nullable', 'max:255'],
-            'student_note' => ['nullable', 'max:1000'],
+        throw ValidationException::withMessages([
+            'thesis_guidance_id' => 'Mahasiswa tidak membuat pengajuan jadwal seminar/ujian. Jadwal dibuat oleh admin dan mahasiswa hanya memantau status persetujuannya.',
         ]);
-
-        $guidance = DB::table('thesis_guidances')
-            ->where('id', $validated['thesis_guidance_id'])
-            ->where('student_id', $student->id)
-            ->whereIn('status', ['approved', 'active'])
-            ->first();
-
-        abort_if(! $guidance, 403, 'Pengajuan jadwal hanya tersedia setelah TA disetujui.');
-
-        $taRequest = DB::table('thesis_guidance_requests')
-            ->where('student_id', $student->id)
-            ->where('title', $guidance->title)
-            ->where('status', 'approved')
-            ->where('admin_status', 'approved')
-            ->where('supervisor_1_status', 'approved')
-            ->where('supervisor_2_status', 'approved')
-            ->where('examiner_1_status', 'approved')
-            ->where('examiner_2_status', 'approved')
-            ->orderByDesc('created_at')
-            ->first();
-
-        if (! $taRequest) {
-            throw ValidationException::withMessages([
-                'thesis_guidance_id' => 'Pengajuan jadwal belum bisa dikirim karena pengajuan TA belum disetujui lengkap oleh admin, pembimbing, dan penguji.',
-            ]);
-        }
-
-        $hasPending = DB::table('seminar_requests')
-            ->where('thesis_guidance_id', $guidance->id)
-            ->where('type', $validated['type'])
-            ->where('status', 'pending')
-            ->exists();
-
-        if ($hasPending) {
-            throw ValidationException::withMessages([
-                'type' => 'Masih ada pengajuan jadwal '.$validated['type'].' yang menunggu persetujuan.',
-            ]);
-        }
-
-        DB::table('seminar_requests')->insert([
-            'student_id' => $student->id,
-            'thesis_guidance_id' => $guidance->id,
-            'supervisor_1_id' => $taRequest->supervisor_1_id,
-            'supervisor_2_id' => $taRequest->supervisor_2_id,
-            'examiner_1_id' => $taRequest->examiner_1_id,
-            'examiner_2_id' => $taRequest->examiner_2_id,
-            'type' => $validated['type'],
-            'proposed_at' => $validated['proposed_at'],
-            'room' => $validated['room'] ?? null,
-            'student_note' => $validated['student_note'] ?? null,
-            'status' => 'pending',
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        return redirect()->route('mahasiswa.guidance.mine')->with('status', 'Pengajuan jadwal seminar/ujian berhasil dikirim untuk validasi admin dan dosen terkait.');
     }
 
     public function guidance(): View
@@ -443,7 +385,7 @@ class MahasiswaController extends Controller
             ->whereIn('thesis_guidance_id', $ids)
             ->get()
             ->map(function ($upload) {
-                $upload->url = Storage::disk('public')->url($upload->path);
+                $upload->url = route('thesis-uploads.show', $upload->id);
 
                 return $upload;
             })
@@ -460,5 +402,18 @@ class MahasiswaController extends Controller
             'surat_persetujuan' => 'Surat Persetujuan',
             'slide' => 'Slide',
         ];
+    }
+
+    private function paMessages(array $consultationIds)
+    {
+        if ($consultationIds === [] || ! Schema::hasTable('pa_consultation_messages')) {
+            return collect();
+        }
+
+        return DB::table('pa_consultation_messages')
+            ->whereIn('pa_consultation_id', $consultationIds)
+            ->orderBy('created_at')
+            ->get()
+            ->groupBy('pa_consultation_id');
     }
 }

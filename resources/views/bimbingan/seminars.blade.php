@@ -2,7 +2,7 @@
 
 @section('content')
     <section class="panel">
-        <h3>Validasi Pengajuan Jadwal Seminar / Ujian</h3>
+        <h3>Validasi Jadwal Seminar / Ujian dari Admin</h3>
         <table class="table">
             <thead>
             <tr>

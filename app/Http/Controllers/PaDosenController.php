@@ -12,8 +12,6 @@ class PaDosenController extends Controller
 {
     public function dashboard(): View
     {
-        abort_if(Auth::user()->role !== 'dosen', 403);
-
         $lecturer = $this->lecturer();
         $students = $this->advisedStudents($lecturer);
         $consultations = $this->consultations($lecturer);
@@ -33,8 +31,6 @@ class PaDosenController extends Controller
 
     public function updateConsultation(Request $request, int $consultation): RedirectResponse
     {
-        abort_if(Auth::user()->role !== 'dosen', 403);
-
         $lecturer = $this->lecturer();
 
         $exists = DB::table('pa_consultations')
@@ -56,6 +52,52 @@ class PaDosenController extends Controller
         ]);
 
         return redirect()->route('pa.dashboard')->with('status', 'Catatan bimbingan PA berhasil disimpan.');
+    }
+
+    public function storeMessage(Request $request, int $consultation): RedirectResponse
+    {
+        $lecturer = $this->lecturer();
+        $record = DB::table('pa_consultations')
+            ->where('id', $consultation)
+            ->where('lecturer_id', $lecturer->id)
+            ->first();
+
+        abort_if(! $record, 404);
+
+        $validated = $request->validate([
+            'status' => ['required', 'in:diajukan,dijadwalkan,selesai,dibatalkan'],
+            'scheduled_at' => ['nullable', 'date'],
+            'message' => ['nullable', 'max:1500'],
+            'recommendation' => ['nullable', 'max:1500'],
+        ]);
+
+        $message = trim(implode("\n\n", array_filter([
+            $validated['message'] ?? null,
+            ($validated['recommendation'] ?? null) ? 'Rekomendasi: '.$validated['recommendation'] : null,
+        ])));
+
+        DB::transaction(function () use ($consultation, $validated, $message): void {
+            DB::table('pa_consultations')->where('id', $consultation)->update([
+                'status' => $validated['status'],
+                'scheduled_at' => $validated['scheduled_at'] ?? null,
+                'lecturer_note' => $validated['message'] ?? null,
+                'recommendation' => $validated['recommendation'] ?? null,
+                'updated_at' => now(),
+            ]);
+
+            if ($message !== '') {
+                DB::table('pa_consultation_messages')->insert([
+                    'pa_consultation_id' => $consultation,
+                    'sender_role' => 'dosen',
+                    'sender_user_id' => Auth::id(),
+                    'message' => $message,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        });
+
+        return redirect()->route('pa.dashboard')->with('status', 'Pesan Bimbingan PA berhasil dikirim.');
     }
 
     private function lecturer(): object

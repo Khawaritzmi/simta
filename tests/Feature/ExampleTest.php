@@ -230,27 +230,35 @@ class ExampleTest extends TestCase
         $this->assertDatabaseMissing('pa_consultations', ['id' => $consultation->id]);
     }
 
-    public function test_admin_can_manage_seminar_schedule(): void
+    public function test_admin_creates_seminar_schedule_request_but_can_edit_existing_schedule(): void
     {
         $this->actingAs(User::where('email', 'admin@bimbingan.test')->firstOrFail());
 
-        $this->get('/admin/seminar-ujian')->assertStatus(200);
+        $this->get('/admin/seminar-ujian')
+            ->assertStatus(200)
+            ->assertSee('Buat Jadwal untuk Approval Dosen');
 
-        $this->post('/admin/seminar-ujian', [
+        $this->from('/admin/seminar-ujian')->post('/admin/seminar-ujian', [
             'thesis_guidance_id' => 1,
-            'type' => 'Seminar Proposal',
-            'scheduled_at' => '2026-06-20 09:30:00',
+            'type' => 'Seminar Hasil',
+            'proposed_at' => '2026-06-20 09:30:00',
             'room' => 'Ruang Seminar Baru',
-            'status' => 'scheduled',
-            'score' => null,
-            'feedback' => null,
+            'note' => 'Mohon validasi jadwal seminar hasil.',
         ])->assertRedirect('/admin/seminar-ujian');
 
-        $seminar = \Illuminate\Support\Facades\DB::table('seminars')
-            ->where('room', 'Ruang Seminar Baru')
-            ->first();
+        $this->assertDatabaseMissing('seminars', [
+            'room' => 'Ruang Seminar Baru',
+        ]);
 
-        $this->assertNotNull($seminar);
+        $this->assertDatabaseHas('seminar_requests', [
+            'thesis_guidance_id' => 1,
+            'type' => 'Seminar Hasil',
+            'room' => 'Ruang Seminar Baru',
+            'admin_status' => 'approved',
+            'status' => 'pending',
+        ]);
+
+        $seminar = \Illuminate\Support\Facades\DB::table('seminars')->where('id', 1)->first();
 
         $this->get("/admin/seminar-ujian/{$seminar->id}/edit")->assertStatus(200);
 
@@ -303,11 +311,8 @@ class ExampleTest extends TestCase
         $this->from('/admin/seminar-ujian')->post('/admin/seminar-ujian', [
             'thesis_guidance_id' => $guidanceId,
             'type' => 'Seminar Proposal',
-            'scheduled_at' => '2026-07-20 09:30:00',
+            'proposed_at' => '2026-07-20 09:30:00',
             'room' => 'Ruang Seminar Ditolak',
-            'status' => 'scheduled',
-            'score' => null,
-            'feedback' => null,
         ])
             ->assertRedirect('/admin/seminar-ujian')
             ->assertSessionHasErrors('thesis_guidance_id');
@@ -377,17 +382,33 @@ class ExampleTest extends TestCase
             ->assertSee('Judul perlu dipersempit sebelum diajukan kembali.');
     }
 
-    public function test_seminar_schedule_request_requires_admin_and_all_lecturer_approvals(): void
+    public function test_admin_seminar_schedule_request_requires_all_lecturer_approvals(): void
     {
         $this->actingAs(User::where('email', 'mahasiswa@bimbingan.test')->firstOrFail());
 
-        $this->post('/mahasiswa/seminar-ujian/pengajuan', [
+        $this->from('/mahasiswa/ta/tugas-akhir-saya')->post('/mahasiswa/seminar-ujian/pengajuan', [
             'thesis_guidance_id' => 1,
             'type' => 'Seminar Hasil',
             'proposed_at' => '2026-08-01 09:00:00',
             'room' => 'Ruang Seminar Validasi',
             'student_note' => 'Mohon validasi jadwal seminar hasil.',
-        ])->assertRedirect('/mahasiswa/ta/tugas-akhir-saya');
+        ])
+            ->assertRedirect('/mahasiswa/ta/tugas-akhir-saya')
+            ->assertSessionHasErrors('thesis_guidance_id');
+
+        $this->assertDatabaseMissing('seminar_requests', [
+            'room' => 'Ruang Seminar Validasi',
+        ]);
+
+        $this->actingAs(User::where('email', 'admin@bimbingan.test')->firstOrFail());
+
+        $this->post('/admin/seminar-ujian', [
+            'thesis_guidance_id' => 1,
+            'type' => 'Seminar Hasil',
+            'proposed_at' => '2026-08-01 09:00:00',
+            'room' => 'Ruang Seminar Validasi',
+            'note' => 'Jadwal dibuat oleh admin untuk divalidasi dosen.',
+        ])->assertRedirect('/admin/seminar-ujian');
 
         $requestId = \Illuminate\Support\Facades\DB::table('seminar_requests')
             ->where('room', 'Ruang Seminar Validasi')
@@ -397,7 +418,7 @@ class ExampleTest extends TestCase
         $this->assertDatabaseHas('seminar_requests', [
             'id' => $requestId,
             'status' => 'pending',
-            'admin_status' => 'pending',
+            'admin_status' => 'approved',
         ]);
 
         foreach ([2, 3, 4] as $lecturerId) {
@@ -417,21 +438,19 @@ class ExampleTest extends TestCase
             ]);
         }
 
-        $this->actingAs(User::where('email', 'admin@bimbingan.test')->firstOrFail());
-        $this->from('/admin/seminar-ujian')->post("/admin/seminar-ujian/pengajuan/{$requestId}/persetujuan", [
-            'status' => 'rejected',
-        ])
-            ->assertRedirect('/admin/seminar-ujian')
-            ->assertSessionHasErrors('note');
-
-        $this->post("/admin/seminar-ujian/pengajuan/{$requestId}/persetujuan", [
-            'status' => 'approved',
-        ])->assertRedirect('/admin/seminar-ujian');
-
         foreach ([1, 2, 3, 4] as $lecturerId) {
             $userId = \Illuminate\Support\Facades\DB::table('lecturers')->where('id', $lecturerId)->value('user_id');
 
             $this->actingAs(User::findOrFail($userId));
+
+            if ($lecturerId === 1) {
+                $this->from('/dosen/seminar-ujian')->post("/dosen/seminar-ujian/pengajuan/{$requestId}/persetujuan", [
+                    'status' => 'rejected',
+                ])
+                    ->assertRedirect('/dosen/seminar-ujian')
+                    ->assertSessionHasErrors('note');
+            }
+
             $this->post("/dosen/seminar-ujian/pengajuan/{$requestId}/persetujuan", [
                 'status' => 'approved',
             ])->assertRedirect('/dosen/seminar-ujian');
@@ -538,6 +557,11 @@ class ExampleTest extends TestCase
                 'updated_at' => now(),
             ],
         );
+        $uploadId = \Illuminate\Support\Facades\DB::table('thesis_uploads')
+            ->where('student_id', 1)
+            ->where('thesis_guidance_id', 1)
+            ->where('category', 'proposal')
+            ->value('id');
 
         $this->actingAs(User::where('email', 'dosen@bimbingan.test')->firstOrFail());
 
@@ -548,7 +572,13 @@ class ExampleTest extends TestCase
             ->assertSee('Catatan penilaian lengkap')
             ->assertSee('Proposal')
             ->assertSee('proposal-aulia.pdf')
-            ->assertSee('/storage/uploads/1/proposal.pdf', false);
+            ->assertSee("/ta/uploads/{$uploadId}", false);
+
+        $this->get("/ta/uploads/{$uploadId}")
+            ->assertStatus(200)
+            ->assertHeader('content-type', 'application/pdf')
+            ->assertHeader('content-disposition', 'inline; filename="proposal-aulia.pdf"')
+            ->assertSee('PDF', false);
     }
 
     public function test_student_profile_photo_upload_is_displayed_from_public_photo_route(): void
@@ -681,6 +711,16 @@ class ExampleTest extends TestCase
             'topic' => 'Konsultasi pengambilan mata kuliah pilihan',
             'status' => 'diajukan',
         ]);
+
+        $consultationId = \Illuminate\Support\Facades\DB::table('pa_consultations')
+            ->where('topic', 'Konsultasi pengambilan mata kuliah pilihan')
+            ->value('id');
+
+        $this->assertDatabaseHas('pa_consultation_messages', [
+            'pa_consultation_id' => $consultationId,
+            'sender_role' => 'mahasiswa',
+            'message' => 'Saya ingin memastikan mata kuliah pilihan sesuai dengan rencana tugas akhir.',
+        ]);
     }
 
     public function test_lecturer_can_save_pa_guidance_note(): void
@@ -700,6 +740,52 @@ class ExampleTest extends TestCase
             'id' => $consultation->id,
             'status' => 'selesai',
             'lecturer_note' => 'Mahasiswa disarankan menjaga beban SKS tetap realistis.',
+        ]);
+
+        $this->post("/pa/dosen/konsultasi/{$consultation->id}/pesan", [
+            'status' => 'selesai',
+            'scheduled_at' => '2026-05-03 10:00:00',
+            'message' => 'Silakan lanjutkan rencana KRS tersebut.',
+            'recommendation' => 'Pantau prasyarat mata kuliah pilihan.',
+        ])->assertRedirect('/dosen/pa');
+
+        $this->assertDatabaseHas('pa_consultation_messages', [
+            'pa_consultation_id' => $consultation->id,
+            'sender_role' => 'dosen',
+            'message' => "Silakan lanjutkan rencana KRS tersebut.\n\nRekomendasi: Pantau prasyarat mata kuliah pilihan.",
+        ]);
+    }
+
+    public function test_pa_chat_authorization_uses_profile_ownership_not_only_role_string(): void
+    {
+        $user = User::create([
+            'name' => 'Dosen PA Examiner',
+            'email' => 'dosen.pa.examiner@bimbingan.test',
+            'role' => 'examiner',
+            'password' => Hash::make('password'),
+        ]);
+
+        \Illuminate\Support\Facades\DB::table('lecturers')->where('id', 1)->update([
+            'user_id' => $user->id,
+            'updated_at' => now(),
+        ]);
+
+        $consultation = \Illuminate\Support\Facades\DB::table('pa_consultations')->where('lecturer_id', 1)->first();
+
+        $this->actingAs($user);
+
+        $this->post("/pa/dosen/konsultasi/{$consultation->id}/pesan", [
+            'status' => 'dijadwalkan',
+            'scheduled_at' => '2026-05-04 09:00:00',
+            'message' => 'Pesan PA tetap bisa dikirim selama dosen memiliki profil dan konsultasi ini.',
+            'recommendation' => null,
+        ])->assertRedirect('/dosen/pa');
+
+        $this->assertDatabaseHas('pa_consultation_messages', [
+            'pa_consultation_id' => $consultation->id,
+            'sender_role' => 'dosen',
+            'sender_user_id' => $user->id,
+            'message' => 'Pesan PA tetap bisa dikirim selama dosen memiliki profil dan konsultasi ini.',
         ]);
     }
 
